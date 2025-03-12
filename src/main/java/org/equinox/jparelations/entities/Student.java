@@ -3,6 +3,7 @@ package org.equinox.jparelations.entities;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -68,5 +69,27 @@ public class Student {
                 ", lastName='" + lastName + '\'' +
                 ", courses=" + courses +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return Objects.equals(id, student.id) && Objects.equals(name, student.name) && Objects.equals(lastName, student.lastName) && Objects.equals(courses, student.courses);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, lastName, courses);
+    }
+
+    public void addCourse(Course course) {
+        this.courses.add(course);
+        course.getStudents().add(this);
+    }
+
+    public void removeCourse(Course course) {
+        this.courses.remove(course);
+        course.getStudents().remove(this);
     }
 }

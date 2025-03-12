@@ -34,7 +34,7 @@ public class JpaRelationsApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        manyToManyFindById();
+        bidireccionalRemove();
     }
 
     @Transactional
@@ -283,5 +283,86 @@ public class JpaRelationsApplication implements CommandLineRunner {
             student.setCourses(Set.of(php));
             System.out.println(studentRepository.save(student));
         });
+    }
+
+    @Transactional
+    public void manyToManyDelete() {
+        Course java = courseRepository.findById(1L).get();
+        Course php = courseRepository.findById(2L).get();
+
+        studentRepository.findById(1L).ifPresent(student -> {
+            student.setCourses(Set.of(java, php));
+            System.out.println(studentRepository.save(student));
+        });
+
+        studentRepository.findById(2L).ifPresent(student -> {
+            student.setCourses(Set.of(php));
+            System.out.println(studentRepository.save(student));
+        });
+
+        Optional<Student> studentOptional =  studentRepository.findById(1L);
+        studentOptional.ifPresent(student -> {
+            Optional<Course> courseOptional =  courseRepository.findById(1L);
+            courseOptional.ifPresent(course -> {
+               student.getCourses().remove(course);
+               System.out.println(studentRepository.save(student));
+            });
+        });
+
+/*
+        Optional<Student> studentOptional =  studentRepository.findByRelations(1L);
+
+        if (studentOptional.isPresent()) {
+            Student student = studentOptional.get();
+            Optional<Course> courseOptional =  courseRepository.findById(1L);
+            if (courseOptional.isPresent()) {
+                Course course = courseOptional.get();
+                student.getCourses().remove(course);
+                System.out.println(studentRepository.save(student));
+            }
+        }
+*/
+    }
+
+    @Transactional
+    public void manyToManyDeleteBidireccional() {
+        Course course1 = new Course("Java desde 0 hasta experto", "JuazPy Tutoriales");
+        Course course2 = new Course("PHP desde 0 hasta experto", "JuazPy Tutoriales");
+
+        Student student1 = new Student("EMANUEL", "LEZCANO");
+        Student student2 = new Student("JOSH", "BARZALA");
+
+        student1.addCourse(course1);
+        student1.addCourse(course2);
+        student2.addCourse(course2);
+        System.out.println(studentRepository.saveAll(List.of(student1, student2)));;
+    }
+
+    @Transactional
+    public void bidireccionalRemove() {
+        Course java = courseRepository.findById(1L).get();
+        Course php = courseRepository.findById(2L).get();
+
+        studentRepository.findById(1L).ifPresent(student -> {
+            student.setCourses(Set.of(java, php));
+            System.out.println(studentRepository.save(student));
+        });
+
+        studentRepository.findById(2L).ifPresent(student -> {
+            student.setCourses(Set.of(php));
+            System.out.println(studentRepository.save(student));
+        });
+
+        Optional<Student> studentOptional = studentRepository.findByRelations(1L);
+
+        if (studentOptional.isPresent()) {
+            Student student = studentOptional.get();
+            Optional<Course> courseOptional =  courseRepository.findWithStudents(1L);
+            if (courseOptional.isPresent()) {
+                Course course = courseOptional.get();
+                student.removeCourse(course);
+                System.out.println(studentRepository.save(student));
+            }
+        }
     }
 }
