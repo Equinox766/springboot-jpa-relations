@@ -28,6 +28,14 @@ public class Client {
         this.invoices = new HashSet<>();
     }
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "client")
+    private ClientDetail clientDetail;
+
+    public Client(String name, String lastName) {
+        this.name = name;
+        this.lastName = lastName;
+    }
+
     public Client(Long id, String name, String lastName, Set<Address> addresses, Set<Invoice> invoices) {
         this.id = id;
         this.name = name;
@@ -76,6 +84,15 @@ public class Client {
         this.invoices = invoices;
     }
 
+    public ClientDetail getClientDetail() {
+        return clientDetail;
+    }
+
+    public void setClientDetail(ClientDetail clientDetail) {
+        this.clientDetail = clientDetail;
+        this.clientDetail.setClient(this);
+    }
+
     @Override
     public String toString() {
         return "Client{" +
@@ -84,6 +101,7 @@ public class Client {
                 ", lastName='" + lastName + '\'' +
                 ", addresses=" + addresses +
                 ", invoices=" + invoices +
+                ", clientDetail=" + clientDetail+
                 '}';
     }
 
@@ -91,5 +109,10 @@ public class Client {
         invoices.add(invoice);
         invoice.setClient(this);
         return this;
+    }
+
+    public void removeClientDetail(ClientDetail clientDetail) {
+        this.clientDetail.setClient(null);
+        this.clientDetail = null;
     }
 }
